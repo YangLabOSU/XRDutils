@@ -55,22 +55,25 @@ def getdata(fname, machinenm=''):
     with open(d.name) as file:
         for num, line in enumerate(file, 1):
             if machine.timestp in line:
-                d.timestp = line.split(machine.timestp)[1].split(' ')[0]
+                if ':' in line:
+                    d.timestp = line.split(machine.timestp)[1].split(' ')[0].split('\n')[0]
             if machine.datestp in line:
-                d.datestp = line.split(machine.datestp)[1].split(' ')[0]
+                d.datestp = line.split(machine.datestp)[1].split(' ')[0].split('\n')[0]
             if machine.stepsize in line:
-                d.stepsize = float(line.split(machine.stepsize)[1].split(' ')[0])
+                if line.split(machine.stepsize)[0] == '':
+                    d.stepsize = float(line.split(machine.stepsize)[1].split(' ')[0])
             if machine.sttwothetaangl in line:
                 d.sttwothetaangl = float(line.split(machine.sttwothetaangl)[1].split(' ')[0])
             if machine.datstart in line:
                 d.datstart = num-1
             if machine.tpp in line:
-                try:
-                    d.tpp = float(line.split(machine.tpp)[1].split(' ')[0])
-                except:
-                    """
-                    There are 2 Time= lines for NTW data, so if the result can't be converted, skip it.
-                    """
+                if line.split(machine.tpp)[0] == '' or line.split(machine.tpp)[0][-1] == ' ':
+                    try:
+                        d.tpp = float(line.split(machine.tpp)[1].split(' ')[0])
+                    except:
+                        """
+                        There are 2 Time= lines for NTW data, so if the result can't be converted, skip it.
+                        """
             if machine.wvlnth in line:
                 d.wvlnth = float(line.split(machine.wvlnth)[1].split(' ')[0])
 
@@ -129,7 +132,9 @@ def getdatainfolder(fpath, repl=False, sdsearch=True):
                 print('xrd file {} already exists, replacing...'.format(f))
                 flist.append(f)
             else:
-                print('xrd file {} already exists, NOT replacing...'.format(f))
+                #print('xrd file {} already exists, NOT replacing...'.format(f))
+                """
+                """
         else:
             flist.append(f)
 
