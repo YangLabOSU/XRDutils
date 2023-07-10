@@ -1,0 +1,7 @@
+{
+    "plot_style" : {
+        "linewidth" : 0.8,
+        "linetype" : "-",
+        "linecolor" : "#1f77b4",
+        "legend" : true}
+}

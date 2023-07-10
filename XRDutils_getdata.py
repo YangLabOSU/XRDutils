@@ -4,6 +4,7 @@ import os
 import sys
 import getopt
 import matplotlib.pyplot as plt
+from XRDutils_plots import *
 
 class XRDmachine:
     #Class defining XRD machine data header format. 
@@ -27,6 +28,16 @@ class XRDmachine:
             self.tpp = 'Time='
             self.wvlnth = 'ActuallyUsedLambda='
             self.delimiter= ','
+        elif name == 'NSLxrdml':
+            self.timestp = '<startTimeStamp>'
+            self.datestp = 'T'
+            self.sttwothetaangl = '<positions axis='
+            self.datstart = '<counts unit="counts">'
+            self.tpp = '<commonCountingTime unit="seconds">'
+            self.wvlnth = '<kAlpha1 unit="Angstrom">'
+            self.delimiter= ' '
+            self.scanaxis = 'scanAxis='
+            self.atten = '<beamAttenuationFactors>'
 
 class scdata:
     #Class defninig scan data
@@ -45,47 +56,99 @@ def getdata(fname, machinenm=''):
     if machinenm != '':
         machine = XRDmachine(machinenm)
     else:
-        if fname[-3:] == 'X01':
+        if fname.split('.')[-1] == 'X01':
             machine = XRDmachine('ece')
-        elif fname[-3:] == 'txt':
+        elif fname.split('.')[-1] == 'txt':
             machine = XRDmachine('NTW')
+        elif fname.split('.')[-1] == 'xrdml':
+            machine = XRDmachine('NSLxrdml')
     
     #define the scan data class and populate it using the machine format settings.
     d=scdata(fname, machine)
+    stposline=0
+    endposline=0
     with open(d.name) as file:
-        for num, line in enumerate(file, 1):
-            if machine.timestp in line:
-                if ':' in line:
-                    d.timestp = line.split(machine.timestp)[1].split(' ')[0].split('\n')[0]
-            if machine.datestp in line:
-                d.datestp = line.split(machine.datestp)[1].split(' ')[0].split('\n')[0]
-            if machine.stepsize in line:
-                if line.split(machine.stepsize)[0] == '':
-                    d.stepsize = float(line.split(machine.stepsize)[1].split(' ')[0])
-            if machine.sttwothetaangl in line:
-                d.sttwothetaangl = float(line.split(machine.sttwothetaangl)[1].split(' ')[0])
-            if machine.datstart in line:
-                d.datstart = num-1
-            if machine.tpp in line:
-                if line.split(machine.tpp)[0] == '' or line.split(machine.tpp)[0][-1] == ' ':
-                    try:
-                        d.tpp = float(line.split(machine.tpp)[1].split(' ')[0])
-                    except:
-                        """
-                        There are 2 Time= lines for NTW data, so if the result can't be converted, skip it.
-                        """
-            if machine.wvlnth in line:
-                d.wvlnth = float(line.split(machine.wvlnth)[1].split(' ')[0])
+        if machine.name != 'NSLxrdml':
+            for num, line in enumerate(file, 1):
+                if machine.timestp in line:
+                    if ':' in line:
+                        d.timestp = line.split(machine.timestp)[1].split(' ')[0].split('\n')[0]
+                if machine.datestp in line:
+                    d.datestp = line.split(machine.datestp)[1].split(' ')[0].split('\n')[0]
+                if machine.stepsize in line:
+                    if line.split(machine.stepsize)[0] == '':
+                        d.stepsize = float(line.split(machine.stepsize)[1].split(' ')[0])
+                if machine.sttwothetaangl in line:
+                    d.sttwothetaangl = float(line.split(machine.sttwothetaangl)[1].split(' ')[0])
+                if machine.datstart in line:
+                    d.datstart = num-1
+                if machine.tpp in line:
+                    if line.split(machine.tpp)[0] == '' or line.split(machine.tpp)[0][-1] == ' ':
+                        try:
+                            d.tpp = float(line.split(machine.tpp)[1].split(' ')[0])
+                        except:
+                            """
+                            There are 2 Time= lines for NTW data, so if the result can't be converted, skip it.
+                            """
+                if machine.wvlnth in line:
+                    d.wvlnth = float(line.split(machine.wvlnth)[1].split(' ')[0])
 
-    #get the scan data using the header information gathered
-    d.datadf = pd.read_csv(d.name, skiprows=d.datstart,
-                       delimiter=d.machine.delimiter, engine='python')
+            #get the scan data using the header information gathered
+            d.datadf = pd.read_csv(d.name, skiprows=d.datstart,
+                            delimiter=d.machine.delimiter, engine='python')
+        else:
+            d.scanaxis='none'
+            anglerangeline='not yet defined'
+            attenlist=[1]
+            for num, line in enumerate(file, 1):
+                if machine.scanaxis in line:
+                    d.scanaxis=line.split(machine.scanaxis)[-1].split(' ')[0]
+                    if d.scanaxis == '"2Theta-Omega"':
+                        anglerangeline=machine.sttwothetaangl+'"2Theta"'
+                    elif d.scanaxis == '"Omega-2Theta"':
+                        anglerangeline=machine.sttwothetaangl+'"Omega"'
+                    else:
+                        anglerangeline=machine.sttwothetaangl+d.scanaxis
+                if machine.timestp in line:
+                    d.timestp = line.split(machine.timestp)[-1].split('<')[0].split(machine.datestp)[-1].split('-')[0]
+                    d.datestp = line.split(machine.timestp)[-1].split('<')[0].split(machine.datestp)[0]
+                if anglerangeline in line:
+                    stposline=num+1
+                    endposline=num+2
+                if num == stposline and stposline > 0:
+                    d.sttwothetaangl=float(line.split('<startPosition>')[-1].split('<')[0])
+                if num == endposline and endposline > 0:
+                    d.endtwothetaangl=float(line.split('<endPosition>')[-1].split('<')[0])
+                if machine.wvlnth in line:
+                    d.wvlnth = float(line.split(machine.wvlnth)[1].split('<')[0])
+                if machine.tpp in line:
+                    d.tpp=float(line.split(machine.tpp)[1].split('<')[0])
+                if machine.datstart in line:
+                    ylist=line.split(machine.datstart)[1].split('<')[0]
+                    ylist=ylist.split(machine.delimiter)
+                    ylist=[float(i) for i in ylist]
+                if machine.atten in line:
+                    attenlist=line.split(machine.atten)[1].split('<')[0]
+                    attenlist=attenlist.split(machine.delimiter)
+                    attenlist=[float(i) for i in attenlist]
+            if len(attenlist) > 1:
+                ylist=[a*b for a,b in zip(attenlist,ylist)]
+            d.datadf=pd.DataFrame()
+            d.datadf['x']=np.linspace(d.sttwothetaangl,d.endtwothetaangl,len(ylist))
+            d.datadf['y']=ylist
+            d.stepsize=d.datadf['x'].iloc[1]-d.datadf['x'].iloc[0]
+
 
     return d
 
+def cleandata(d):
+    d.datadf=d.datadf[d.datadf.iloc[:, 1] >= 0]
+    d.datadf=d.datadf[d.datadf.iloc[:, 1] != float('nan')]
+    return d
+
 def savedata(d):
-    #save data object to '.xrd'(text) file at the location it was opened from
-    fname=d.fold+d.fname.split('.')[0]+'proc.xrd'
+    #save data object to '.xrd'(csv text) file at the location it was opened from
+    fname=d.fold+d.fname.split(d.fname.split('.')[-1])[0]+'proc.xrd'
     with open(fname, 'w') as f:
         #save header info
         f.write("filename: "+d.fname+'\n')
@@ -97,7 +160,7 @@ def savedata(d):
         f.write("step size: "+str(d.stepsize)+'\n')
         f.write("time per point: "+str(d.tpp)+'\n')
         f.write("wavelength: "+str(d.wvlnth)+'\n')
-        f.write("x, y\n")
+        f.write("x,y\n")
 
         #save data
         #if the machine is ece, shift x to be 2theta (default is theta) and add offset (default is relative)
@@ -111,7 +174,8 @@ def savedata(d):
 
 def getdatainfolder(fpath, repl=False, sdsearch=True):
     #only look for files with these extensions
-    extf=['.txt','.X01']
+    extf=['.X01', '.xrdml']
+    #disabled: '.txt',
     flist1=[]
     #get file names, depending on if subdirectories are searched or not
     if sdsearch:
@@ -127,7 +191,7 @@ def getdatainfolder(fpath, repl=False, sdsearch=True):
     #check if processed file is already there - replace it if 'repl' is True
     flist=[]
     for f in flist1:
-        if os.path.isfile(f[:-4]+'proc.xrd'):
+        if os.path.isfile(f.split(f.split('.')[-1])[0]+'proc.xrd'):
             if repl:
                 print('xrd file {} already exists, replacing...'.format(f))
                 flist.append(f)
@@ -140,7 +204,9 @@ def getdatainfolder(fpath, repl=False, sdsearch=True):
 
     for fname in flist:
         d=getdata(fname)
+        d=cleandata(d)
         savedata(d)
+        pd=loadXRDdat(fname.split(fname.split('.')[-1])[0]+'proc.xrd')
 
 
 def main(argv):
