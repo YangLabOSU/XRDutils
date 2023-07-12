@@ -15,7 +15,7 @@ class XRDmachine:
             self.datestp = 'Date: '
             self.stepsize = 'Scan Stepsize: '
             self.sttwothetaangl = '          2Theta    '
-            self.datstart = 'Position    '
+            self.datstart = 'Position '
             self.tpp = 'Counting time per point: '
             self.wvlnth = 'Wavelength: '
             self.delimiter= '    '
@@ -95,7 +95,7 @@ def getdata(fname, machinenm=''):
 
             #get the scan data using the header information gathered
             d.datadf = pd.read_csv(d.name, skiprows=d.datstart,
-                            delimiter=d.machine.delimiter, engine='python')
+                            delimiter=d.machine.delimiter, encoding='unicode_escape', engine='python')
         else:
             d.scanaxis='none'
             anglerangeline='not yet defined'

@@ -36,6 +36,9 @@ def shift_substrate_peak(d,shift_to):
     indx_max = np.argmax(d['y'])
     d['x'] = d['x']-(d['x'][indx_max]-shift_to)
     return d
+
+def shift_zero(d,value=0.1):
+    d['x']
     
 
 def break_files_into_type(file_list):
@@ -43,15 +46,16 @@ def break_files_into_type(file_list):
     xrr_files=[]
     xrd_files=[]
     for file in file_list:
-        if 'rc' in file or 'RC' in file:
+        file_name=file.split('\\')[-1]
+        if 'rc' in file_name or 'RC' in file_name:
             rc_files.append(file)
-        elif 'xrr' in file or 'XRR' in file:
+        elif 'xrr' in file_name or 'XRR' in file_name:
             xrr_files.append(file)
         else:
             xrd_files.append(file)
     return rc_files, xrr_files, xrd_files
 
-def plotXRDdat(d,axis='none',semilog=True, colorset='file'):
+def plotXRDdat(d,axis='none',semilog=True, colorset=-999):
     #Get plot settings from config file
     with open('plotconfig.json') as config_file:
         plot_settings= json.load(config_file)
@@ -62,8 +66,8 @@ def plotXRDdat(d,axis='none',semilog=True, colorset='file'):
     else:
         ax=axis
 
-    mpl.style.use('XRDplots')
-    if colorset == 'file':
+    # mpl.style.use('XRDplots')
+    if colorset.dtype == -999:
         color=plot_settings["plot_style"]["linecolor"]
     else:
         color=colorset
@@ -114,10 +118,13 @@ def compare_between_folders(folder_list,root_folder='',file_filter='none', shift
         fig_xrd,ax_xrd=plt.subplots()
         if len(xrd_files) > maxnumlines:
             maxnumlines=len(xrd_files)
+    print(maxnumlines)
 
     colorrange = cm.rainbow(np.linspace(0, 1, maxnumlines))
     for i in range(len(rc_files)):
         color=colorrange[i]
+        print(color)
+        print(color.dtype)
         data_frame=loadXRDdat(rc_files[i])
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
         plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color)
@@ -137,7 +144,9 @@ def compare_between_folders(folder_list,root_folder='',file_filter='none', shift
 # compare_between_folders(fold_list,root_folder=r'C:\Users\justi\OneDrive\Documents\Material_Characterization\XRD',
 #                         shift_substrate_peak_value=38.9495,multiply_each_by=1)
 
-fold_list=[r'\XE381_Pt(3)_Fe2O3(40min)_Al2O3(0001)_500C',
-           r'\XE377A_Fe2O3(40min)_Al2O3(0001)_500C']
-compare_between_folders(fold_list,root_folder=r'C:\Users\justi\OneDrive\Documents\Material_Characterization\XRD\6-9-23_NSL_XRD',
-                        shift_substrate_peak_value=41.68,multiply_each_by=1)
+
+fold_list=[r'\XE408B_Fe2O3(90min)_Al2O3(0001)_550C_3p5inch_O2on',
+           r'\XE421B_Cr2O3(1h)_LiNbO3(1010)_500C_O2on']
+compare_between_folders(fold_list,root_folder=r'C:\Users\justi\Research\Data\XRD',
+                        multiply_each_by=10)
+plt.show()
