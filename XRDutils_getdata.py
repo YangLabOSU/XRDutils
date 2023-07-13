@@ -214,7 +214,7 @@ def main(argv):
     repl = False
     sdsearch = True
     #default folder to look for new XRD data in. (will also look in +1 level subfolders)
-    inputfolder = r"C:\Users\justi\OneDrive\Documents\Material_Characterization\XRD"
+    inputfolder = r"C:\Users\justi\Research\Data\XRD"
     try:
         opts, args = getopt.getopt(argv,"hrsi:",["ifolder="])
     except getopt.GetoptError:

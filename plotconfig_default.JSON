@@ -1,8 +1,6 @@
 {
     "file_list": [
-        "XE420B_Fe2O3(60min)_LiNbO3(0001)_550C_3p5inch_O2on",
-        "XE408A_Fe2O3(90min)_LiNbO3(0001)_550C_3p5inch_O2on",
-        "XE418_Fe2O3(90min)_LiNbO3(0001)_500C_3p5inch_O2on"
+        "XE420B_Fe2O3(60min)_LiNbO3(0001)_550C_3p5inch_O2on"
     ],
     "plot_style": {
         "legend": true,
