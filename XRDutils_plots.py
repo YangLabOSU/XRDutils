@@ -106,7 +106,7 @@ def plotXRDdat(d,axis='none',semilog=True, colorset=-999):
 
 #def make_current_plot_file(d,plot_settings):
 
-def compare_between_folders_or_files(list_input,root_folder='',file_filter='none', shift_substrate_peak_value=-99,multiply_each_by=1):
+def compare_between_folders_or_files(list_input,root_folder='',file_filter='none', shift_substrate_peak_value=-99,multiply_each_by=1, showplots=False, saveplots=True):
     file_extension='proc.xrd'
     folder_list=[]
     file_list=[]
@@ -160,17 +160,16 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
         data_frame=loadXRDdat(xrd_files[i],shift_substrate_peak_value=shift_substrate_peak_value)
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
         plotXRDdat(data_frame, axis=ax_xrd, semilog=True, colorset=color)
-    plt.show()
-
-# fold_list=[r'\Fe2O3_LNO_6-12-23']
-# compare_between_folders_or_files(fold_list,root_folder=r'C:\Users\justi\OneDrive\Documents\Material_Characterization\XRD',
-#                         shift_substrate_peak_value=38.9495,multiply_each_by=1)
-
-
-# fold_list=[r'\XE408B_Fe2O3(90min)_Al2O3(0001)_550C_3p5inch_O2on',
-#            r'\XE421B_Cr2O3(1h)_LiNbO3(1010)_500C_O2on']
-# compare_between_folders_or_files(fold_list,root_folder=plot_settings["root_dir"],
-#                         multiply_each_by=10)
+    if showplots:
+        plt.show()
+    if saveplots:
+        if len(rc_files)>0:
+            fig_rc.savefig(folder+'/'+folder.split('/')[-1]+'_RC.png',dpi=300)
+        if len(xrr_files)>0:
+            fig_xrr.savefig(folder+'/'+folder.split('/')[-1]+'_xrr.png',dpi=300)
+        if len(xrd_files)>0:
+            fig_xrd.savefig(folder+'/'+folder.split('/')[-1]+'_xrd.png',dpi=300)
+        plt.close('all')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='Command Line XRD plotter',
@@ -180,12 +179,13 @@ if __name__ == "__main__":
     parser.add_argument('-r','--root_directory',type=str, action='store')
     parser.add_argument('-f','--filter',type=str, action='store', default='none')
     parser.add_argument('-rst','--reset_file_list', action='store_true', default=False)
+    parser.add_argument('-sf','--save_figures', action='store_true', default=False)
     args = parser.parse_args()
     args=vars(args)
     populate_plot_settings(args,plot_settings)
 
     compare_between_folders_or_files(plot_settings['file_list'],root_folder=plot_settings["root_dir"],
-                        multiply_each_by=100, file_filter=args['filter'])
+                        multiply_each_by=100, file_filter=args['filter'], showplots=True, saveplots=args['save_figures'])
 
     with open("plotconfig.json", "w") as write_plot_settings:
         write_plot_settings.write(json.dumps(plot_settings, indent=4, sort_keys=True))

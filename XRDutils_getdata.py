@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-import sys
-import getopt
+import argparse
 import matplotlib.pyplot as plt
 from XRDutils_plots import *
 
@@ -137,8 +136,6 @@ def getdata(fname, machinenm=''):
             d.datadf['x']=np.linspace(d.sttwothetaangl,d.endtwothetaangl,len(ylist))
             d.datadf['y']=ylist
             d.stepsize=d.datadf['x'].iloc[1]-d.datadf['x'].iloc[0]
-
-
     return d
 
 def cleandata(d):
@@ -172,7 +169,7 @@ def savedata(d):
             f.write(', ')
             f.write(str(d.datadf.iloc[i, 1])+'\n')
 
-def getdatainfolder(fpath, repl=False, sdsearch=True):
+def getdatainfolder(fpath, repl=False, sdsearch=True, save_figs=False):
     #only look for files with these extensions
     extf=['.X01', '.xrdml']
     #disabled: '.txt',
@@ -206,38 +203,34 @@ def getdatainfolder(fpath, repl=False, sdsearch=True):
         d=getdata(fname)
         d=cleandata(d)
         savedata(d)
-        pd=loadXRDdat(fname.split(fname.split('.')[-1])[0]+'proc.xrd')
 
+    if save_figs:
+        plot_and_save_data(fpath)
 
-def main(argv):
-    helpmsg = 'XRDutils_getdata.py -i <inputfolder/file> \n-r for replace already processed\n-s for ignore subdirs'
-    repl = False
-    sdsearch = True
-    #default folder to look for new XRD data in. (will also look in +1 level subfolders)
-    inputfolder = r"C:\Users\justi\Research\Data\XRD"
-    try:
-        opts, args = getopt.getopt(argv,"hrsi:",["ifolder="])
-    except getopt.GetoptError:
-        print(helpmsg)
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print(helpmsg)
-            sys.exit()
-        elif opt == '-r':
-            repl = True
-            print('Replacing previously processed data files...')
-        elif opt == '-s':
-            sdsearch = False
-            print('Ignoring subdirectories...')
-        elif opt in ("-i", "--ifile"):
-            inputfolder = arg
-            print('Input file/folder is '+ inputfolder)
-    if '.' in inputfolder:
-        d=getdata(inputfolder)
-        savedata(d)
-    else:
-        getdatainfolder(inputfolder, sdsearch=sdsearch, repl=repl)
+def plot_and_save_data(fpath):
+    print('saving figures...')
+    directory_list=[]
+    for path in os.listdir(fpath):
+        full_path = os.path.join(fpath, path)
+        if os.path.isdir(full_path):
+            directory_list.append(full_path)
+    for d in directory_list:
+        compare_between_folders_or_files([d],multiply_each_by=10)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    
+    parser = argparse.ArgumentParser(prog='Command Line XRD converter',
+                                     description='Converts XRD files using a CLI.' + 
+                                     ' Can convert from NSL, NTW, and ece file formats.')
+    parser.add_argument('-i','--data_folder',type=str, action='store',default=plot_settings['root_dir'])
+    parser.add_argument('-r','--replace', action='store_true', default=False)
+    parser.add_argument('-s','--ignore_subdirectories', action='store_true', default=False)
+    parser.add_argument('-sf','--save_figures', action='store_true', default=False)
+    args = parser.parse_args()
+    args=vars(args)
+    print(json.dumps(args, indent=4, sort_keys=True))
+    if '.' in args['data_folder']:
+        d=getdata(args['data_folder'])
+        savedata(d)
+    else:
+        getdatainfolder(args['data_folder'], sdsearch=not args['ignore_subdirectories'], repl=args['replace'], save_figs=args['save_figures'])
