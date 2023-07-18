@@ -1,14 +1,15 @@
 {
     "file_list": [
-        "XE420B_Fe2O3(60min)_LiNbO3(0001)_550C_3p5inch_O2on",
-        "XE408A_Fe2O3(90min)_LiNbO3(0001)_550C_3p5inch_O2on",
-        "XE418_Fe2O3(90min)_LiNbO3(0001)_500C_3p5inch_O2on"
+        "XE407_Fe2O3(1h)_Al2O3(0001)_550C_3p5inch",
+        "XE408B_Fe2O3(90min)_Al2O3(0001)_550C_3p5inch_O2on"
     ],
     "plot_style": {
         "legend": true,
+        "legend_fontsize": 7,
         "linecolor": "#1f77b4",
         "linetype": "-",
-        "linewidth": 0.8
+        "linewidth": 0.8,
+        "waterfall_step": 100
     },
     "root_dir": "C:/Users/justi/Research/Data/XRD/"
 }

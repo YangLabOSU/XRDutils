@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
@@ -101,7 +100,7 @@ def plotXRDdat(d,axis='none',semilog=True, colorset=-999):
         ax.set_xlabel('$\omega$')
     if plot_settings["plot_style"]["legend"]:
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1])
+        ax.legend(handles[::-1], labels[::-1], prop={'size': plot_settings['plot_style']['legend_fontsize']})
     ax.set_ylabel('Intensity (cps)')
 
 #def make_current_plot_file(d,plot_settings):
@@ -124,7 +123,7 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
                 if file_filter == 'none':
                     file_list.append(os.path.join(folder, file_name))
                 else:
-                    if file_filter in file_name:
+                    if any (string_filter in file_name for string_filter in file_filter):
                         file_list.append(os.path.join(folder, file_name))
 
     file_list=convert_to_forwardslash(file_list)
@@ -148,7 +147,7 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
     for i in range(len(rc_files)):
         color=colorrange[i]
         data_frame=loadXRDdat(rc_files[i])
-        data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
+        data_frame.dat['y']=data_frame.dat['y']+multiply_each_by/10*i
         plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color)
     for i in range(len(xrr_files)):
         color=colorrange[i]
@@ -177,15 +176,15 @@ if __name__ == "__main__":
                                      ' Can convert from NSL, NTW, and ece file formats.')
     parser.add_argument('file_or_folder_names',type=str, action='store', nargs='*')
     parser.add_argument('-r','--root_directory',type=str, action='store')
-    parser.add_argument('-f','--filter',type=str, action='store', default='none')
+    parser.add_argument('-f','--filter',type=str, action='store', default='none', nargs='*')
     parser.add_argument('-rst','--reset_file_list', action='store_true', default=False)
     parser.add_argument('-sf','--save_figures', action='store_true', default=False)
     args = parser.parse_args()
     args=vars(args)
     populate_plot_settings(args,plot_settings)
-
+    # print(json.dumps(args, indent=4, sort_keys=True))
     compare_between_folders_or_files(plot_settings['file_list'],root_folder=plot_settings["root_dir"],
-                        multiply_each_by=100, file_filter=args['filter'], showplots=True, saveplots=args['save_figures'])
+                        multiply_each_by=plot_settings['plot_style']['waterfall_step'], file_filter=args['filter'], showplots=True, saveplots=args['save_figures'])
 
     with open("plotconfig.json", "w") as write_plot_settings:
         write_plot_settings.write(json.dumps(plot_settings, indent=4, sort_keys=True))
