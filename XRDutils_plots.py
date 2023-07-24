@@ -143,7 +143,7 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
         if len(xrd_files) > maxnumlines:
             maxnumlines=len(xrd_files)
 
-    colorrange = cm.rainbow(np.linspace(0, 1, maxnumlines))
+    colorrange = cm.brg(np.linspace(0, 0.9, maxnumlines))
     for i in range(len(rc_files)):
         color=colorrange[i]
         data_frame=loadXRDdat(rc_files[i])
