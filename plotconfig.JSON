@@ -1,16 +1,7 @@
 {
     "file_list": [
-        "XE407_Fe2O3(1h)_Al2O3(0001)_550C_3p5inch",
-        "XE408B_Fe2O3(90min)_Al2O3(0001)_550C_3p5inch_O2on",
-        "XE422_3WB_Pt(3)_Fe2O3(30min)_Al2O3(0001)_500C",
-        "XE421A_Cr2O3(1h)_LiNbO3(0001)_500C_O2on",
-        "XE420B_Fe2O3(60min)_LiNbO3(0001)_550C_3p5inch_O2on",
-        "XE340_NiO(40min)_MgO(001)_460C",
-        "XE343_NiO(30min)_MgO(001)_45W_500C",
-        "XE230_NiO(40)_PMNPT(111)",
-        "XE346_NiO(30min)_MgO(001)_370C_50W",
-        "XE396B_Fe2O3(2h)_LiNbO3(0001)_500C_airAnneal1h700C",
-        "XE397B_Cr2O3(90min)_LiNbO3(0001)_500C"
+        "XE469_Fe2O3(2h)_LiNbO3(0001)_300C/XE469_0006_XRD_01aa001.proc.xrd",
+        "XE408A_Fe2O3(90min)_LiNbO3(0001)_550C_3p5inch_O2on/LiNbO3(0006)_iCore_TA_36-41_p0087s_1over8slit_XE408A.proc.xrd"
     ],
     "plot_style": {
         "legend": true,
@@ -20,5 +11,5 @@
         "linewidth": 1,
         "waterfall_step": 100
     },
-    "root_dir": "C:/Users/justi/Research/Data/XRD/"
+    "root_dir": "c:/Users/justi/Research/Data/XRD/XE158B_Pt(3)_NiO(10)_PMNPT(100)/"
 }

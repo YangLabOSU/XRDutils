@@ -14,6 +14,8 @@ class XRDmachine:
             self.datestp = 'Date: '
             self.stepsize = 'Scan Stepsize: '
             self.sttwothetaangl = '          2Theta    '
+            self.stomegaangl = '          Omega    '
+            self.scanaxis = 'Scanning Axis: '
             self.datstart = 'Position '
             self.tpp = 'Counting time per point: '
             self.wvlnth = 'Wavelength: '
@@ -79,6 +81,10 @@ def getdata(fname, machinenm=''):
                         d.stepsize = float(line.split(machine.stepsize)[1].split(' ')[0])
                 if machine.sttwothetaangl in line:
                     d.sttwothetaangl = float(line.split(machine.sttwothetaangl)[1].split(' ')[0])
+                if machine.stomegaangl in line:
+                    d.stomegaangl = float(line.split(machine.stomegaangl)[1].split(' ')[0])
+                if machine.scanaxis in line:
+                    d.scanaxis = line.split(machine.scanaxis)[1].split(' ')[0]
                 if machine.datstart in line:
                     d.datstart = num-1
                 if machine.tpp in line:
@@ -163,7 +169,12 @@ def savedata(d):
         #if the machine is ece, shift x to be 2theta (default is theta) and add offset (default is relative)
         for i in range(len(d.datadf.iloc[:, 0])):
             if d.machine.name == 'ece':
-                f.write(str(d.sttwothetaangl-2*d.datadf.iloc[0, 0]+2*d.datadf.iloc[i, 0]))
+                if d.scanaxis == 'Omega-2Theta':
+                    f.write(str(d.sttwothetaangl-2*d.datadf.iloc[0, 0]+2*d.datadf.iloc[i, 0]))
+                elif d.scanaxis == 'Omega':
+                    f.write(str(d.stomegaangl-d.datadf.iloc[0, 0]+d.datadf.iloc[i, 0]))
+                elif d.scanaxis == 'Omega_Rel':
+                    f.write(str(d.stomegaangl-d.datadf.iloc[0, 0]+d.datadf.iloc[i, 0]))
             else:
                 f.write(str(d.datadf.iloc[i, 0]))
             f.write(', ')
@@ -205,15 +216,17 @@ def getdatainfolder(fpath, repl=False, sdsearch=True, save_figs=False):
         savedata(d)
 
     if save_figs:
-        plot_and_save_data(fpath)
+        plot_and_save_data(flist)
 
-def plot_and_save_data(fpath):
+def plot_and_save_data(flist):
     print('saving figures...')
     directory_list=[]
-    for path in os.listdir(fpath):
-        full_path = os.path.join(fpath, path)
-        if os.path.isdir(full_path):
-            directory_list.append(full_path)
+    # get list of unique directories
+    for file in flist:
+        file_folder='/'.join(file.split('/')[:-1])
+        if file_folder not in directory_list:
+            directory_list.append(file_folder)
+    print(directory_list)
     for d in directory_list:
         compare_between_folders_or_files([d],multiply_each_by=10)
 

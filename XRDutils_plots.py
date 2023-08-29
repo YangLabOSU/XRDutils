@@ -72,12 +72,13 @@ def break_files_into_type(file_list):
             xrd_files.append(file)
     return rc_files, xrr_files, xrd_files
 
-def plotXRDdat(d,axis='none',semilog=True, colorset=-999):
+def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\Omega$', colorset=-999):
     #  
     if axis == 'none':
         fig,ax=plt.subplots()
     else:
         ax=axis
+    ax.set_xlabel(xlabel)
 
     # mpl.style.use('XRDplots')
     if colorset.dtype == -999:
@@ -91,13 +92,11 @@ def plotXRDdat(d,axis='none',semilog=True, colorset=-999):
         color=color,
         linewidth=plot_settings["plot_style"]["linewidth"],
         label=d.linename)
-        ax.set_xlabel(r'2$\theta$ - $\omega$')
     else:
         ax.plot(d.dat['x'],d.dat['y'],linestyle=plot_settings["plot_style"]["linetype"],
         color=color,
         linewidth=plot_settings["plot_style"]["linewidth"],
         label=d.linename)
-        ax.set_xlabel('$\omega$')
     if plot_settings["plot_style"]["legend"]:
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], prop={'size': plot_settings['plot_style']['legend_fontsize']})
@@ -148,12 +147,12 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
         color=colorrange[i]
         data_frame=loadXRDdat(rc_files[i])
         data_frame.dat['y']=data_frame.dat['y']+multiply_each_by/10*i
-        plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color)
+        plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color, xlabel='$\Omega$')
     for i in range(len(xrr_files)):
         color=colorrange[i]
         data_frame=loadXRDdat(xrr_files[i])
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
-        plotXRDdat(data_frame, axis=ax_xrr, semilog=True, colorset=color)
+        plotXRDdat(data_frame, axis=ax_xrr, semilog=True, colorset=color, xlabel=r'$\Omega$ - 2$\theta$')
     for i in range(len(xrd_files)):
         color=colorrange[i]
         data_frame=loadXRDdat(xrd_files[i],shift_substrate_peak_value=shift_substrate_peak_value)
