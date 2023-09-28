@@ -178,7 +178,7 @@ def savedata(d):
             else:
                 f.write(str(d.datadf.iloc[i, 0]))
             f.write(', ')
-            f.write(str(d.datadf.iloc[i, 1])+'\n')
+            f.write(str(d.datadf.iloc[i, 1]/d.tpp)+'\n')
 
 def getdatainfolder(fpath, repl=False, sdsearch=True, save_figs=False):
     #only look for files with these extensions
@@ -194,7 +194,7 @@ def getdatainfolder(fpath, repl=False, sdsearch=True, save_figs=False):
     else:
         for name in os.listdir(fpath):
             if any(ext in name for ext in extf):
-                flist1.append(os.path.join(path, name))
+                flist1.append(os.path.join(fpath, name))
     
     #check if processed file is already there - replace it if 'repl' is True
     flist=[]
@@ -223,11 +223,11 @@ def plot_and_save_data(flist):
     directory_list=[]
     # get list of unique directories
     for file in flist:
-        file_folder='/'.join(file.split('/')[:-1])
+        file_folder='/'.join(file.split('\\')[:-1])
         if file_folder not in directory_list:
             directory_list.append(file_folder)
-    print(directory_list)
     for d in directory_list:
+        print('generating figures for {}...'.format(d))
         compare_between_folders_or_files([d],multiply_each_by=10)
 
 if __name__ == "__main__":

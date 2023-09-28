@@ -15,8 +15,12 @@ with open('plotconfig.json') as config_file:
 def populate_plot_settings(args,plot_settings):
     if bool(args['reset_file_list']):
         plot_settings['file_list']=args['file_or_folder_names']
+        if args['label_names'] != 'none':
+            plot_settings['label_list']=args['label_names']
     else:
         plot_settings['file_list'] += args['file_or_folder_names']
+        if args['label_names'] != 'none':
+            plot_settings['label_list']+=args['label_names']
 
 class XRDdat:
     #Class containing XRD data and metadata
@@ -72,7 +76,7 @@ def break_files_into_type(file_list):
             xrd_files.append(file)
     return rc_files, xrr_files, xrd_files
 
-def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\Omega$', colorset=-999):
+def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\Omega$', colorset=-999, custom_label='none'):
     #  
     if axis == 'none':
         fig,ax=plt.subplots()
@@ -86,7 +90,10 @@ def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\Omega$', color
     else:
         color=colorset
 
-    d.linename=d.name.split('/')[-2]
+    if custom_label == 'none':
+        d.linename=d.name.split('/')[-2]
+    else:
+        d.linename=custom_label
     if semilog:
         ax.semilogy(d.dat['x'],d.dat['y'],linestyle=plot_settings["plot_style"]["linetype"],
         color=color,
@@ -104,7 +111,8 @@ def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\Omega$', color
 
 #def make_current_plot_file(d,plot_settings):
 
-def compare_between_folders_or_files(list_input,root_folder='',file_filter='none', shift_substrate_peak_value=-99,multiply_each_by=1, showplots=False, saveplots=True):
+def compare_between_folders_or_files(list_input,label_list=[],root_folder='',file_filter='none', shift_substrate_peak_value=-99,
+                                     multiply_each_by=1, showplots=False, saveplots=True):
     file_extension='proc.xrd'
     folder_list=[]
     file_list=[]
@@ -112,18 +120,15 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
         if file_extension in input_string:
             file_list.append(root_folder + input_string)
         else:
-            folder_list.append(input_string)
-            
-    full_folder_list=[root_folder+folder for folder in folder_list]
-    for folder in full_folder_list:
-        getdatainfolder(folder, sdsearch=True, repl=False)
-        for file_name in os.listdir(folder):
-            if file_extension in file_name:
-                if file_filter == 'none':
-                    file_list.append(os.path.join(folder, file_name))
-                else:
-                    if any (string_filter in file_name for string_filter in file_filter):
-                        file_list.append(os.path.join(folder, file_name))
+            full_folder_path=root_folder+input_string
+            getdatainfolder(full_folder_path, sdsearch=True, repl=False)
+            for file_name in os.listdir(full_folder_path):
+                if file_extension in file_name:
+                    if file_filter == 'none':
+                        file_list.append(os.path.join(full_folder_path, file_name))
+                    else:
+                        if any (string_filter in file_name for string_filter in file_filter):
+                            file_list.append(os.path.join(full_folder_path, file_name))
 
     file_list=convert_to_forwardslash(file_list)
 
@@ -144,29 +149,41 @@ def compare_between_folders_or_files(list_input,root_folder='',file_filter='none
 
     colorrange = cm.brg(np.linspace(0, 0.9, maxnumlines))
     for i in range(len(rc_files)):
+        if len(label_list)==len(rc_files):
+            custom_label=label_list[i]
+        else:
+            custom_label='none'
         color=colorrange[i]
-        data_frame=loadXRDdat(rc_files[i])
-        data_frame.dat['y']=data_frame.dat['y']+multiply_each_by/10*i
-        plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color, xlabel='$\Omega$')
+        data_frame=loadXRDdat(rc_files[i],shift_substrate_peak_value=shift_substrate_peak_value)
+        data_frame.dat['y']=data_frame.dat['y']-multiply_each_by/10*i
+        plotXRDdat(data_frame, axis=ax_rc, semilog=False, colorset=color, xlabel='$\Omega$', custom_label=custom_label)
     for i in range(len(xrr_files)):
+        if len(label_list)==len(xrr_files):
+            custom_label=label_list[i]
+        else:
+            custom_label='none'
         color=colorrange[i]
         data_frame=loadXRDdat(xrr_files[i])
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
-        plotXRDdat(data_frame, axis=ax_xrr, semilog=True, colorset=color, xlabel=r'$\Omega$ - 2$\theta$')
+        plotXRDdat(data_frame, axis=ax_xrr, semilog=True, colorset=color, xlabel=r'$\Omega$ - 2$\theta$', custom_label=custom_label)
     for i in range(len(xrd_files)):
+        if len(label_list)==len(xrd_files):
+            custom_label=label_list[i]
+        else:
+            custom_label='none'
         color=colorrange[i]
         data_frame=loadXRDdat(xrd_files[i],shift_substrate_peak_value=shift_substrate_peak_value)
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
-        plotXRDdat(data_frame, axis=ax_xrd, semilog=True, colorset=color)
+        plotXRDdat(data_frame, axis=ax_xrd, semilog=True, colorset=color, custom_label=custom_label)
     if showplots:
         plt.show()
     if saveplots:
         if len(rc_files)>0:
-            fig_rc.savefig(folder+'/'+folder.split('/')[-1]+'_RC.png',dpi=300)
+            fig_rc.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_RC.png',dpi=300)
         if len(xrr_files)>0:
-            fig_xrr.savefig(folder+'/'+folder.split('/')[-1]+'_xrr.png',dpi=300)
+            fig_xrr.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrr.png',dpi=300)
         if len(xrd_files)>0:
-            fig_xrd.savefig(folder+'/'+folder.split('/')[-1]+'_xrd.png',dpi=300)
+            fig_xrd.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrd.png',dpi=300)
         plt.close('all')
 
 if __name__ == "__main__":
@@ -174,6 +191,7 @@ if __name__ == "__main__":
                                      description='Plots XRD files using a CLI.' + 
                                      ' Can convert from NSL, NTW, and ece file formats.')
     parser.add_argument('file_or_folder_names',type=str, action='store', nargs='*')
+    parser.add_argument('-l','--label_names', type=str,default='none', action='store', nargs='*')
     parser.add_argument('-r','--root_directory',type=str, action='store')
     parser.add_argument('-f','--filter',type=str, action='store', default='none', nargs='*')
     parser.add_argument('-rst','--reset_file_list', action='store_true', default=False)
@@ -183,7 +201,8 @@ if __name__ == "__main__":
     populate_plot_settings(args,plot_settings)
     # print(json.dumps(args, indent=4, sort_keys=True))
     compare_between_folders_or_files(plot_settings['file_list'],root_folder=plot_settings["root_dir"],
-                        multiply_each_by=plot_settings['plot_style']['waterfall_step'], file_filter=args['filter'], showplots=True, saveplots=args['save_figures'])
+                        multiply_each_by=plot_settings['plot_style']['waterfall_step'], file_filter=args['filter'], 
+                        showplots=True, saveplots=args['save_figures'], label_list=plot_settings['label_list'])
 
     with open("plotconfig.json", "w") as write_plot_settings:
         write_plot_settings.write(json.dumps(plot_settings, indent=4, sort_keys=True))
