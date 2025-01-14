@@ -53,3 +53,5 @@ When the plots or getdata script are run on a folder, these file formats are con
 When plotting, 'rc' being in the filename will generate a rocking curve plot, 'xrr' will generate an xrr plot, and neither of these will generate a default 2theta-omega plot. It is not case-sensitive.
 
 Default figures are generated per subfolder, and are saved as the subfolder name followed by xrd, xrr, or rc.
+
+If you give the program specific files to plot with extensions, it requires the processed files (with extension .proc.xrd). If you just give it folders it will automatically search for these files.
