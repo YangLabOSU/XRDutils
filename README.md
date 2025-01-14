@@ -23,11 +23,27 @@ To compare specific files/folders containing data, you can run
 python XRDutils_plots.py <file/folder1> <file/folder2> ... -rst
 ~~~
 
+
 Here, including the rst flag rewrites over the file list in the plotconfig.JSON file. Alternatively, you can enter the folders/files you want to plot in that JSON file and then simply run 
 ~~~
 python XRDutils_plots.py
 ~~~
 to generate plots comparing them.
+
+The filtering system supports some simple Boolean operations. For example, if you want to plot files in the root folder with 
+* subdirectories containing 
+    * "Fe2O3(30)" AND "Al2O3" 
+    * OR "NiO"
+* and only filenames containing
+    * "XRD" AND "00012"
+    * OR "RC"
+
+You can use the following command:
+~~~
+python .\XRDutils_plots.py -rst -ff "Fe2O3(30),Al2O3" "NiO" -f "XRD,00012" "RC"
+~~~
+
+Note that here the -rst flag removes sets the file or folder list to be empty. This causes the program to search for data in the root folder and its subdirectories.
 
 ## File Naming Conventions
 This code assumes NTW data is in the native .xrdml file format. It can also process ECE (Bede) data, and NTW (Bruker) data with the .X01 and .txt file formats, respectively. 
