@@ -43,7 +43,7 @@ You can use the following command:
 python .\XRDutils_plots.py -rst -ff "Fe2O3(30),Al2O3" "NiO" -f "XRD,00012" "RC"
 ~~~
 
-Note that here the -rst flag removes sets the file or folder list to be empty. This causes the program to search for data in the root folder and its subdirectories.
+Note that here the -rst flag sets the file or folder list to be empty. This causes the program to search for data in the root folder and its subdirectories.
 
 ## File Naming Conventions
 This code assumes NTW data is in the native .xrdml file format. It can also process ECE (Bede) data, and NTW (Bruker) data with the .X01 and .txt file formats, respectively. 
