@@ -30,6 +30,8 @@ def populate_fit_settings(args,plot_settings):
     films=[]
     if args['file_name'] != []:
         fit_settings['file_name']=args['file_name']
+    if args['root_directory'] != None:
+        fit_settings['root_directory']=args['root_directory']
     if args['substrates'] != None:
         for substrate_argstr in args['substrates']:
             substrate_type =  substrate_argstr.split(' ')[0].split('(')[0]
@@ -157,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('-r','--root_directory',type=str, action='store')
     parser.add_argument('-s','--substrates',type=str, action='store', nargs='*')
     parser.add_argument('-f','--films',type=str, action='store', nargs='*')
-    parser.add_argument('-sf','--save_figures', action='store_true', default=False)
+    # parser.add_argument('-sf','--save_figures', action='store_true', default=False)
     args = parser.parse_args()
     args=vars(args)
     print(args['substrates'])

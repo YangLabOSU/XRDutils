@@ -1,7 +1,7 @@
 {
     "background_intensity": 0.13,
     "file_name": [
-        "XE972_NiO(60)_MgO(001)/MgO(001)_iCore_TA_39-49_p008step2s3x_XE972.proc.xrd"
+        "XF139_NiO(30min)_MgO(001)D_3p5in_500C_45W_6%O2/MgO(001)_iCore_TA_FAST_XF139.proc.xrd"
     ],
     "layers": {
         "films": [
@@ -9,37 +9,26 @@
                 "hkl": [
                     0,
                     0,
-                    6
+                    2
                 ],
-                "intensity": 100.0,
-                "lattice_constant_percent": 100,
-                "name": "Fe2O3",
-                "thickness": 30
-            },
-            {
-                "hkl": [
-                    0,
-                    0,
-                    6
-                ],
-                "intensity": 100.0,
-                "lattice_constant_percent": 100,
-                "name": "Cr2O3",
-                "thickness": 76.92307692307693
+                "intensity": 529.6126298646799,
+                "lattice_constant_percent": 99.85576923076924,
+                "name": "NiO",
+                "thickness": 21.63461538461538
             }
         ],
         "substrates": [
             {
-                "fwhm": 0.0001,
+                "fwhm": 0.00012,
                 "hkl": [
                     0,
                     0,
-                    6
+                    2
                 ],
-                "intensity": 100000.0,
-                "name": "Al2O3"
+                "intensity": 500000.0,
+                "name": "MgO"
             }
         ]
     },
-    "root_directory": "C:/Users/justi/Research/Data/XRD/"
+    "root_directory": "C:\\Users\\justi\\Research\\Data\\XRD\\"
 }
