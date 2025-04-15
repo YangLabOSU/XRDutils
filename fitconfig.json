@@ -1,0 +1,45 @@
+{
+    "background_intensity": 0.13,
+    "file_name": [
+        "XE972_NiO(60)_MgO(001)/MgO(001)_iCore_TA_39-49_p008step2s3x_XE972.proc.xrd"
+    ],
+    "layers": {
+        "films": [
+            {
+                "hkl": [
+                    0,
+                    0,
+                    6
+                ],
+                "intensity": 100.0,
+                "lattice_constant_percent": 100,
+                "name": "Fe2O3",
+                "thickness": 30
+            },
+            {
+                "hkl": [
+                    0,
+                    0,
+                    6
+                ],
+                "intensity": 100.0,
+                "lattice_constant_percent": 100,
+                "name": "Cr2O3",
+                "thickness": 76.92307692307693
+            }
+        ],
+        "substrates": [
+            {
+                "fwhm": 0.0001,
+                "hkl": [
+                    0,
+                    0,
+                    6
+                ],
+                "intensity": 100000.0,
+                "name": "Al2O3"
+            }
+        ]
+    },
+    "root_directory": "C:/Users/justi/Research/Data/XRD/"
+}

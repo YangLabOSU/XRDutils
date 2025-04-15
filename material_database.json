@@ -1,0 +1,92 @@
+{
+    "materials": [
+        {
+        "name": "SrTiO3",
+        "c_lattice_constant": 3.905,
+        "a_lattice_constant": 3.905,
+        "poisson_ratio":0.33,
+        "density":5.1,
+        "default_hkl": [0,0,2]
+        },
+        {
+        "name": "LaFeO3",
+        "c_lattice_constant": 3.93,
+        "a_lattice_constant": 3.93,
+        "poisson_ratio":0.33,
+        "density":6.4,
+        "default_hkl": [0,0,2]
+        },
+        {
+        "name": "Al2O3",
+        "c_lattice_constant": 12.991,
+        "a_lattice_constant": 4.758,
+        "poisson_ratio":0.21,
+        "density":3.99,
+        "default_hkl": [0,0,6]
+        },
+        {
+        "name": "Fe2O3",
+        "c_lattice_constant": 13.75,
+        "a_lattice_constant": 5.03,
+        "poisson_ratio":0.24,
+        "density":5.24,
+        "default_hkl": [0,0,6]
+        },
+        {
+        "name": "Cr2O3",
+        "c_lattice_constant": 13.59,
+        "a_lattice_constant": 4.963,
+        "poisson_ratio":0.24,
+        "density":5.22,
+        "default_hkl": [0,0,6]
+        },
+        {
+        "name": "Pt",
+        "c_lattice_constant": 3.94,
+        "a_lattice_constant": 3.94,
+        "poisson_ratio":0.38,
+        "density":21.45,
+        "default_hkl": [1,1,1]
+        },
+        {
+        "name": "MgO",
+        "c_lattice_constant": 4.213,
+        "a_lattice_constant": 4.213,
+        "poisson_ratio": 0.21,
+        "density": 3.58,
+        "default_hkl": [0,0,2]
+        },
+        {
+        "name": "NiO",
+        "c_lattice_constant": 4.17,
+        "a_lattice_constant": 4.17,
+        "poisson_ratio": 0.21,
+        "density": 6.67,
+        "default_hkl": [0,0,2]
+        },
+        {
+        "name": "YIG",
+        "c_lattice_constant": 12.376,
+        "a_lattice_constant": 12.376,
+        "poisson_ratio": 0.29,
+        "density": 5.11,
+        "default_hkl": [4,4,4]
+        },
+        {
+        "name": "GGG",
+        "c_lattice_constant": 12.383,
+        "a_lattice_constant": 12.383,
+        "poisson_ratio": 0.29,
+        "density": 7.08,
+        "default_hkl": [4,4,4]
+        },
+        {
+        "name": "YSGG",
+        "c_lattice_constant": 12.426,
+        "a_lattice_constant": 12.426,
+        "poisson_ratio": 0.29,
+        "density": 5.67,
+        "default_hkl": [4,4,4]
+        }
+    ]
+}

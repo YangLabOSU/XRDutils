@@ -208,14 +208,15 @@ def compare_between_folders_or_files(list_input,label_list=[],root_folder='',fil
     if showplots:
         plt.show()
     if saveplots:
-        print('saving figures...')
+        savloc=full_folder_path+'/'+full_folder_path.split('/')[-1]
+        print('saving figures to {}...'.format(savloc))
         if len(rc_files)>0:
             fig_rc.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_RC.png',dpi=300)
         if len(xrr_files)>0:
             fig_xrr.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrr.png',dpi=300)
         if len(xrd_files)>0:
             fig_xrd.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrd.png',dpi=300)
-        plt.close('all')
+        # plt.close('all')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='Command Line XRD plotter',
