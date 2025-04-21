@@ -266,7 +266,7 @@ if __name__ == "__main__":
             film_d=film_ds[i]
             if i>0:
                 legstr+='\n'
-            legstr+='{}: {:.3f}deg {:.5f}A'.format(film["name"],q_to_twotheta(film_d),calc_c_from_d_hkl(film_d,film["hkl"]))
+            legstr+='{}: {:.3f}deg {:.5f}A'.format(film["name"],q_to_twotheta(d_to_q(film_d)),calc_c_from_d_hkl(film_d,film["hkl"]))
         return legstr
     print(make_legend_str(film_ds,fit_settings,film_mat_props))
     ax.legend([make_legend_str(film_ds,fit_settings,film_mat_props)])
