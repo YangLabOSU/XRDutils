@@ -118,21 +118,41 @@ def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\omega$', color
 
 #def make_current_plot_file(d,plot_settings):
 
-def compare_between_folders_or_files(list_input,label_list=[],root_folder='',file_filter_string='none',folder_filter_string='none', shift_substrate_peak_value=-99,
+def parse_filter_string(filter_string):
+    if filter_string == '':
+        return [], []
+    # "foo,bar" or "baz,!qux"
+    must_include = []
+    must_exclude = []
+    for term in filter_string.split(','):
+        term = term.strip()
+        if term.startswith('!'):
+            must_exclude.append(term[1:])
+        else:
+            must_include.append(term)
+    return must_include, must_exclude
+
+def match_filters(name, include, exclude):
+    return all(word in name for word in include) and all(word not in name for word in exclude)
+
+def compare_between_folders_or_files(list_input,label_list=[],root_folder='',file_filter_list=[''],folder_filter_list=[''], shift_substrate_peak_value=-99,
                                      multiply_each_by=1, showplots=False, saveplots=True):
     file_extension='proc.xrd'
     folder_list=[]
     file_list=[]
     file_filters=[]
     folder_filters=[]
-    for f in file_filter_string:
-        file_filters.append(f.split(','))
-    for f in folder_filter_string:
-        folder_filters.append(f.split(','))
-    # print(file_filters)
-    # print(folder_filters)
-    if len(list_input) == 0:
-        list_input=[""]
+    file_filters_not=[]
+    folder_filters_not=[]
+    
+    # Parse filters
+    parsed_file_filters = [parse_filter_string(f) for f in file_filter_list]
+    parsed_folder_filters = [parse_filter_string(f) for f in folder_filter_list]
+
+    # print(parsed_file_filters)
+    # print(parsed_folder_filters)
+    if not list_input:
+        list_input=['']
     for input_string in list_input:
         if file_extension in input_string:
             file_list.append(root_folder + input_string)
@@ -141,26 +161,18 @@ def compare_between_folders_or_files(list_input,label_list=[],root_folder='',fil
             getdatainfolder(full_folder_path, sdsearch=True, repl=False)
             for subdirectory,directories,file_names in os.walk(full_folder_path):
                 for file_name in file_names:
-                    full_file_address=subdirectory+os.sep+file_name
                     if file_extension in file_name:
-                        if folder_filter_string == 'none':
-                            if file_filter_string == 'none':
-                                file_list.append(full_file_address)
-                            else:
-                                for file_filter_and in file_filters:
-                                    if all (string_filter in file_name for string_filter in file_filter_and):
-                                        file_list.append(full_file_address)
-                        else:
-                            for folder_filter_and in folder_filters:
-                                if all (string_filter in subdirectory for string_filter in folder_filter_and):
-                                    if file_filter_string == 'none':
-                                        file_list.append(full_file_address)
-                                    else:
-                                        for file_filter_and in file_filters:
-                                            if all (string_filter in file_name for string_filter in file_filter_and):
-                                                file_list.append(full_file_address)
+                        full_file_address=subdirectory+os.sep+file_name
+                        folder_match = any(match_filters(subdirectory, inc, exc) for inc, exc in parsed_folder_filters)
+                        file_match = any(match_filters(file_name, inc, exc) for inc, exc in parsed_file_filters)
+
+                        if folder_match and file_match:
+                            file_list.append(full_file_address)
 
     file_list=convert_to_forwardslash(file_list)
+    print('plotting files...')
+    for file in file_list:
+        print(file)
 
     rc_files, xrr_files, xrd_files = break_files_into_type(file_list)
     maxnumlines=0
@@ -225,8 +237,8 @@ if __name__ == "__main__":
     parser.add_argument('file_or_folder_names',type=str, action='store', nargs='*')
     parser.add_argument('-l','--label_names', type=str,default='none', action='store', nargs='*')
     parser.add_argument('-r','--root_directory',type=str, action='store')
-    parser.add_argument('-f','--filename filter',type=str, action='store', default='none', nargs='*')
-    parser.add_argument('-ff','--folder filter',type=str, action='store', default='none', nargs='*')
+    parser.add_argument('-f','--filename filter',type=str, action='store', default=[''], nargs='*')
+    parser.add_argument('-ff','--folder filter',type=str, action='store', default=[''], nargs='*')
     parser.add_argument('-rst','--reset_file_list', action='store_true', default=False)
     parser.add_argument('-sf','--save_figures', action='store_true', default=False)
     args = parser.parse_args()
@@ -234,9 +246,9 @@ if __name__ == "__main__":
     populate_plot_settings(args,plot_settings)
     # print(json.dumps(args, indent=4, sort_keys=True))
     compare_between_folders_or_files(plot_settings['file_list'],root_folder=plot_settings["root_dir"],
-                        multiply_each_by=plot_settings['plot_style']['waterfall_step'], file_filter_string=args['filename filter'], 
+                        multiply_each_by=plot_settings['plot_style']['waterfall_step'], file_filter_list=args['filename filter'], 
                         showplots=True, saveplots=args['save_figures'], label_list=plot_settings['label_list'],
-                        folder_filter_string=args['folder filter'])
+                        folder_filter_list=args['folder filter'])
 
     with open("plotconfig.json", "w") as write_plot_settings:
         write_plot_settings.write(json.dumps(plot_settings, indent=4, sort_keys=True))

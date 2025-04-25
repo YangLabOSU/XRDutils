@@ -1,7 +1,7 @@
 {
     "background_intensity": 0.13,
     "file_name": [
-        "C:\\Users\\justi\\Research\\Data\\XRD\\XF194_Fe2O3(50)_1MLGraphene_Al2O3(0001)_350C\\Al2O3(0006)_1h_4B_dCore_37to42_1_XF194.proc.xrd"
+        "C:\\Users\\justi\\Research\\Data\\XRD\\XF091_Fe2O3(27)_Al2O3(0001)3WA_425C\\Al2O3(0006)_FAST_iCore_TA_37-42_p027s_1over8slit_XF091.proc.xrd"
     ],
     "layers": {
         "films": [
@@ -11,21 +11,21 @@
                     0,
                     6
                 ],
-                "intensity": 40.67088527712271,
-                "lattice_constant_percent": 99.95104895104896,
+                "intensity": 30.051391289089228,
+                "lattice_constant_percent": 100.16826923076924,
                 "name": "Fe2O3",
-                "thickness": 46.01398601398601
+                "thickness": 25.480769230769226
             }
         ],
         "substrates": [
             {
-                "fwhm": 1e-05,
+                "fwhm": 0.0001,
                 "hkl": [
                     0,
                     0,
                     6
                 ],
-                "intensity": 1000000.0,
+                "intensity": 100000.0,
                 "name": "Al2O3"
             }
         ]

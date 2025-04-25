@@ -9,6 +9,14 @@
         "default_hkl": [0,0,2]
         },
         {
+        "name": "SrTiO3rightshift",
+        "c_lattice_constant": 3.903,
+        "a_lattice_constant": 3.903,
+        "poisson_ratio":0.33,
+        "density":5.1,
+        "default_hkl": [0,0,2]
+        },
+        {
         "name": "LaFeO3",
         "c_lattice_constant": 3.93,
         "a_lattice_constant": 3.93,
