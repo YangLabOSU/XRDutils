@@ -227,8 +227,12 @@ def plot_and_save_data(flist):
         if file_folder not in directory_list:
             directory_list.append(file_folder)
     for d in directory_list:
+        plt.close('all')
         print('generating figures for {}...'.format(d))
-        compare_between_folders_or_files([d],multiply_each_by=10)
+        try:
+            compare_between_folders_or_files([d],multiply_each_by=10, saveplots=True)
+        except:
+            print('Error - Failed!')
 
 if __name__ == "__main__":
     

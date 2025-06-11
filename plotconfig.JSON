@@ -9,5 +9,12 @@
         "linewidth": 1,
         "waterfall_step": 10
     },
-    "root_dir": "c:/Users/justi/Research/Data/XRD/"
+    "root_dir": "c:/Users/justi/Research/Data/XRD/",
+    "xrr_fft_settings": {
+        "fft_crit_theta_angle": 0.26,
+        "fft_end_theta_angle": 2,
+        "max_plot_thickness_nm": 100,
+        "plot_fft": true,
+        "semilog": true
+    }
 }

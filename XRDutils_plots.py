@@ -8,6 +8,10 @@ import json
 import os
 from XRDutils_getdata import *
 import matplotlib
+import scipy as scp
+import scipy.signal.windows as fft_windows
+import warnings
+
 
 plt.rcParams['savefig.dpi']=1000
 plt.rcParams.update({'figure.autolayout': True})
@@ -15,7 +19,7 @@ font = {'family' : 'Times New Roman',
     'size'   : 16}
 
 matplotlib.rc('font', **font)
-#Get plot settings from config file
+#Get plot settings from config file. This is a global variable so it can be accessed anywhere
 with open('plotconfig.json') as config_file:
     plot_settings= json.load(config_file)
 
@@ -83,6 +87,62 @@ def break_files_into_type(file_list):
             xrd_files.append(file)
     return rc_files, xrr_files, xrd_files
 
+
+def plot_xrr_fft(d, theta_end=99., tmax=100, crit_ang=0.3, axis='none',semilog=False, colorset=-999, custom_label='none'):
+    if axis == 'none':
+        fig,ax=plt.subplots()
+    else:
+        ax=axis
+
+    # mpl.style.use('XRDplots')
+    if colorset.dtype == -999:
+        color=plot_settings["plot_style"]["linecolor"]
+    else:
+        color=colorset
+
+    if custom_label == 'none':
+        d.linename=d.name.split('/')[-2]
+    else:
+        d.linename=custom_label
+    wl=1.5406
+    
+    theta_allowed= d.dat['x'] <= theta_end
+    # The below code involves setting some nans which result from square rooting a negative number.
+    # Suppress the annoying warnings that result:
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', 'invalid value encountered in sqrt')
+        s = 2*np.sqrt((np.cos(np.pi*crit_ang/180))**2 -
+                            (np.cos(np.pi*d.dat['x']/180))**2)/wl
+    mask = np.logical_not(np.isnan(s))
+    s = s[mask & theta_allowed]
+    y = s**4*d.dat['y'][mask & theta_allowed]
+    
+    s_uniform = np.linspace(min(s),max(s),len(s))
+    y_uniform = scp.interpolate.interp1d(s, y, kind='cubic')(s_uniform)
+    window=fft_windows.hamming(len(y_uniform))
+    fft_result = np.abs(scp.fftpack.fft(window*y_uniform/np.mean(window))) # compute FFT
+    ts = scp.fftpack.fftfreq(len(s_uniform), d=(s_uniform[1] - s_uniform[0]))  # calculates fft frequencies from len(s) and the spacing. These are just thicknesses in A
+    fft_mask=ts>0
+    ts=ts[fft_mask]
+    fft_result=fft_result[fft_mask]
+
+    ax.set_xlabel('thickness (nm)')
+    ax.set_ylabel('FFT intensity (a.u.)')
+    if semilog:
+        ax.semilogy(ts/10, fft_result,linestyle=plot_settings["plot_style"]["linetype"],
+            color=color,
+            linewidth=plot_settings["plot_style"]["linewidth"],
+            label=d.linename)
+    else:
+        ax.plot(ts/10, fft_result,linestyle=plot_settings["plot_style"]["linetype"],
+            color=color,
+            linewidth=plot_settings["plot_style"]["linewidth"],
+            label=d.linename)
+    ax.set_xlim([0,tmax])
+    if plot_settings["plot_style"]["legend"]:
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], prop={'size': plot_settings['plot_style']['legend_fontsize']})
+
 def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\omega$', colorset=-999, custom_label='none'):
     #  
     if axis == 'none':
@@ -116,7 +176,6 @@ def plotXRDdat(d,axis='none',semilog=True, xlabel=r'2$\theta$ - $\omega$', color
         ax.legend(handles[::-1], labels[::-1], prop={'size': plot_settings['plot_style']['legend_fontsize']})
     ax.set_ylabel('Intensity (cps)')
 
-#def make_current_plot_file(d,plot_settings):
 
 def parse_filter_string(filter_string):
     if filter_string == '':
@@ -182,6 +241,8 @@ def compare_between_folders_or_files(list_input,label_list=[],root_folder='',fil
             maxnumlines=len(rc_files)
     if len(xrr_files) > 0:
         fig_xrr,ax_xrr=plt.subplots()
+        if plot_settings['xrr_fft_settings']['plot_fft']:
+            fig_xrr_fft,ax_xrr_fft=plt.subplots()
         if len(xrr_files) > maxnumlines:
             maxnumlines=len(xrr_files)
     if len(xrd_files) > 0:
@@ -208,6 +269,10 @@ def compare_between_folders_or_files(list_input,label_list=[],root_folder='',fil
         data_frame=loadXRDdat(xrr_files[i])
         data_frame.dat['y']=data_frame.dat['y']*multiply_each_by**i
         plotXRDdat(data_frame, axis=ax_xrr, semilog=True, colorset=color, xlabel=r'$\omega$ - 2$\theta$', custom_label=custom_label)
+        if plot_settings['xrr_fft_settings']['plot_fft']:
+            plot_xrr_fft(data_frame, theta_end=plot_settings['xrr_fft_settings']['fft_end_theta_angle'], tmax=plot_settings['xrr_fft_settings']['max_plot_thickness_nm'], 
+                        crit_ang=plot_settings['xrr_fft_settings']['fft_crit_theta_angle'], axis=ax_xrr_fft,semilog=plot_settings['xrr_fft_settings']['semilog'], 
+                        colorset=color, custom_label=custom_label)
     for i in range(len(xrd_files)):
         if len(label_list)==len(xrd_files):
             custom_label=label_list[i]
@@ -226,6 +291,7 @@ def compare_between_folders_or_files(list_input,label_list=[],root_folder='',fil
             fig_rc.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_RC.png',dpi=300)
         if len(xrr_files)>0:
             fig_xrr.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrr.png',dpi=300)
+            fig_xrr_fft.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrrfft.png',dpi=300)
         if len(xrd_files)>0:
             fig_xrd.savefig(full_folder_path+'/'+full_folder_path.split('/')[-1]+'_xrd.png',dpi=300)
         # plt.close('all')
